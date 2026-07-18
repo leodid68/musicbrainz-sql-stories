@@ -34,6 +34,7 @@ streams, sales, audience size, or popularity.
 - [LinkedIn draft](linkedin-post.md)
 - [Claim ledger](claim-ledger.md)
 - [Accessibility text](accessibility.md)
+- [LinkedIn publish-ready package](publish-ready/README.md)
 
 ## Reproduce
 
