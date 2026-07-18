@@ -37,5 +37,4 @@ Built with PostgreSQL and Plotly.
 🔍 Next, I will test what actually happens when artist names are used as join
 keys.
 
-[GitHub project link will be added after the repository is public.]
-
+Project: https://github.com/leodid68/musicbrainz-sql-stories/tree/main/projects/01-artist-names
