@@ -17,7 +17,7 @@ I found:
 • Indigo was the most duplicated name in the filtered ranking, with 249
 entities across 52 non-null areas
 
-The SQL used `GROUP BY`, `HAVING`, a CTE, `COUNT(*)`, and `SUM()`.
+The SQL used GROUP BY, HAVING, a CTE, COUNT(*), and SUM().
 
 But the main lesson is about data modeling:
 
@@ -27,7 +27,7 @@ Joining tables using artist names could silently connect unrelated people or
 groups. Stable identifiers, such as MusicBrainz IDs, are much safer.
 
 This analysis only considers exact primary names. Aliases are excluded. I also
-excluded `[unknown]` and `[no artist]` from the ranking.
+excluded [unknown] and [no artist] from the ranking.
 
 MusicBrainz catalog counts are not measures of streams, sales, audience size,
 or popularity.
