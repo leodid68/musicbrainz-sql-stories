@@ -1,0 +1,8 @@
+metric,value
+original_artist_rows,2931345
+name_join_rows,5379621
+cross_entity_matches,2448276
+row_increase_pct,83.52
+indigo_entities,249
+indigo_name_join_rows,62001
+indigo_cross_entity_matches,61752
