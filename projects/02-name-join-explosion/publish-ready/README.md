@@ -2,7 +2,8 @@
 
 Post: **MusicBrainz SQL Stories #2 - A valid JOIN can still create the wrong dataset**
 
-Publication date: **Not scheduled**
+Planned publication: **Wednesday, 22 July 2026 at 08:00
+(Europe/Paris)**
 
 ## Files to use on LinkedIn
 

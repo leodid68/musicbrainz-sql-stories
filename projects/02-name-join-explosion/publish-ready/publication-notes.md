@@ -2,8 +2,8 @@
 
 - Post ID: `LI-2026-002`
 - Series: `MusicBrainz SQL Stories #2`
-- Status: ready for review
-- Publication date: not scheduled
+- Status: ready and planned
+- Planned publication: Wednesday, 22 July 2026 at 08:00 (Europe/Paris)
 - LinkedIn document title: `MusicBrainz SQL Stories #2 - A valid JOIN can still create the wrong dataset`
 - Public project: https://github.com/leodid68/musicbrainz-sql-stories/tree/main/projects/02-name-join-explosion
 - Previous episode: repository available; LinkedIn publication URL not confirmed
