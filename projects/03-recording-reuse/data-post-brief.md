@@ -23,7 +23,7 @@ times, and 3,766 appear at least 100 times.
 
 **Outlier structure:** The largest raw result has 4,320 track rows. Those rows
 are concentrated in one release containing 180 media, with 24 matching track
-rows per medium: 180 x 24 = 4,320.
+rows per medium counted directly in a per-medium CTE: 180 x 24 = 4,320.
 
 **Reproduction path:** `analysis.sql`, `checks.sql`, the exact CSV files in
 `data/`, and `claim-ledger.md`

@@ -12,8 +12,10 @@ DECLARE
     outlier_release_count bigint;
     outlier_medium_count bigint;
     outlier_track_count bigint;
-    outlier_min_medium_tracks integer;
-    outlier_max_medium_tracks integer;
+    outlier_release_id integer;
+    outlier_release_name text;
+    outlier_min_matching_track_rows bigint;
+    outlier_max_matching_track_rows bigint;
     track_medium_violations bigint;
     medium_release_violations bigint;
 BEGIN
@@ -50,19 +52,36 @@ BEGIN
         RAISE EXCEPTION 'reuse share mismatch: %', reuse_share;
     END IF;
 
-    SELECT COUNT(DISTINCT release.id), COUNT(DISTINCT medium.id), COUNT(track.id),
-           MIN(medium.track_count), MAX(medium.track_count)
-    INTO outlier_release_count, outlier_medium_count, outlier_track_count,
-         outlier_min_medium_tracks, outlier_max_medium_tracks
-    FROM track
-    JOIN medium ON medium.id = track.medium
-    JOIN release ON release.id = medium.release
-    WHERE track.recording = 42361496;
+    WITH outlier_medium_usage AS (
+        SELECT release.id AS release_id, release.name AS release_name,
+               medium.id AS medium_id,
+               COUNT(track.id) AS matching_track_rows
+        FROM track
+        JOIN medium ON medium.id = track.medium
+        JOIN release ON release.id = medium.release
+        WHERE track.recording = 42361496
+        GROUP BY release.id, release.name, medium.id
+    )
+    SELECT MIN(release_id), MIN(release_name),
+           COUNT(DISTINCT release_id), COUNT(DISTINCT medium_id),
+           SUM(matching_track_rows), MIN(matching_track_rows),
+           MAX(matching_track_rows)
+    INTO outlier_release_id, outlier_release_name,
+         outlier_release_count, outlier_medium_count, outlier_track_count,
+         outlier_min_matching_track_rows, outlier_max_matching_track_rows
+    FROM outlier_medium_usage;
 
-    IF outlier_release_count <> 1 OR outlier_medium_count <> 180
-       OR outlier_track_count <> 4320 OR outlier_min_medium_tracks <> 24
-       OR outlier_max_medium_tracks <> 24 THEN
-        RAISE EXCEPTION 'outlier structure mismatch';
+    IF outlier_release_id <> 5055218
+       OR outlier_release_name <> 'I Feel Bad For Your Hard Drive'
+       OR outlier_release_count <> 1 OR outlier_medium_count <> 180
+       OR outlier_track_count <> 4320
+       OR outlier_min_matching_track_rows <> 24
+       OR outlier_max_matching_track_rows <> 24 THEN
+        RAISE EXCEPTION 'outlier structure mismatch: release % (%), % releases, % media, % matching rows, min %, max %',
+            outlier_release_id, outlier_release_name, outlier_release_count,
+            outlier_medium_count, outlier_track_count,
+            outlier_min_matching_track_rows,
+            outlier_max_matching_track_rows;
     END IF;
 
     WITH recording_usage AS (

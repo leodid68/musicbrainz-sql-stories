@@ -1,3 +1,4 @@
+import re
 import unittest
 from pathlib import Path
 
@@ -23,6 +24,56 @@ PUBLISH_READY_FILES = (
     "publication-notes.md",
     "recording-reuse.png",
 )
+CANONICAL_CLAIMS_BY_FILE = {
+    "README.md": (
+        "39,332,638",
+        "56,818,950",
+        "18.8357465370108153%",
+        "3,766",
+        "4,320 track rows",
+        "one release",
+        "180 media",
+        "24 matching track rows per medium",
+    ),
+    "claim-ledger.md": (
+        "39,332,638",
+        "56,818,950",
+        "18.8357465370108153%",
+        "3,766",
+        "4,320 track rows",
+        "one release",
+        "180 distinct media",
+        "24 matching track rows",
+    ),
+    "data-post-brief.md": (
+        "39,332,638",
+        "56,818,950",
+        "18.8357465370108153%",
+        "3,766",
+        "4,320 track rows",
+        "one release",
+        "180 media",
+        "24 matching track rows per medium",
+    ),
+    "linkedin-post.md": (
+        "39,332,638",
+        "7,408,596",
+        "18.84%",
+        "3,766",
+        "4,320 track rows",
+        "one release",
+        "180 media",
+        "24 matching track rows",
+    ),
+    "accessibility.md": (
+        "4,320 track rows",
+        "one release",
+        "180",
+        "24 matching track rows",
+        "COUNT(track.id)",
+        "COUNT(DISTINCT release.id)",
+    ),
+}
 
 
 class EditorialPackageTests(unittest.TestCase):
@@ -62,6 +113,83 @@ class EditorialPackageTests(unittest.TestCase):
         self.assertIn("COUNT(DISTINCT release.id)", combined_public_text)
         self.assertIn("catalog", combined_public_text.lower())
 
+    def test_canonical_claims_appear_in_their_intended_artifacts(self):
+        public_texts = self.read_public_files()
+
+        for filename, claims in CANONICAL_CLAIMS_BY_FILE.items():
+            normalized_text = " ".join(public_texts[filename].split())
+            for claim in claims:
+                with self.subTest(filename=filename, claim=claim):
+                    self.assertIn(claim, normalized_text)
+
+    def test_analysis_uses_only_temp_schema_qualified_cleanup(self):
+        analysis_sql = (PROJECT_ROOT / "analysis.sql").read_text(encoding="utf-8")
+        drop_targets = re.findall(
+            r"DROP\s+TABLE\s+IF\s+EXISTS\s+([^\s;]+)",
+            analysis_sql,
+            flags=re.IGNORECASE,
+        )
+
+        unsafe_targets = [
+            target for target in drop_targets if not target.startswith("pg_temp.")
+        ]
+        self.assertEqual(
+            unsafe_targets,
+            [],
+            f"unsafe DROP targets: {unsafe_targets}",
+        )
+
+    def test_outlier_sql_counts_matching_rows_at_medium_grain(self):
+        analysis_sql = (PROJECT_ROOT / "analysis.sql").read_text(encoding="utf-8")
+        checks_sql = (PROJECT_ROOT / "checks.sql").read_text(encoding="utf-8")
+
+        for filename, sql_text in (
+            ("analysis.sql", analysis_sql),
+            ("checks.sql", checks_sql),
+        ):
+            with self.subTest(filename=filename):
+                self.assertIn("outlier_medium_usage AS", sql_text)
+                self.assertIn(
+                    "COUNT(track.id) AS matching_track_rows",
+                    sql_text,
+                )
+                self.assertIn(
+                    "MIN(matching_track_rows)",
+                    sql_text,
+                )
+                self.assertIn(
+                    "MAX(matching_track_rows)",
+                    sql_text,
+                )
+                self.assertNotIn("medium.track_count", sql_text)
+
+        self.assertIn(
+            "SUM(matching_track_rows) AS track_appearances",
+            analysis_sql,
+        )
+        self.assertIn(
+            "MIN(matching_track_rows) AS min_matching_track_rows_per_medium",
+            analysis_sql,
+        )
+        self.assertIn(
+            "MAX(matching_track_rows) AS max_matching_track_rows_per_medium",
+            analysis_sql,
+        )
+
+    def test_readme_reproduces_exports_and_visual_from_explicit_directories(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn("From the repository root", readme)
+        self.assertIn(
+            "-f projects/03-recording-reuse/export.sql",
+            readme,
+        )
+        self.assertIn("cd projects/03-recording-reuse", readme)
+        self.assertIn(
+            "../../.venv/bin/python scripts/build_visual.py",
+            readme,
+        )
+
     def test_linkedin_draft_avoids_unsupported_or_overpolished_copy(self):
         linkedin_text = self.read_public_files()["linkedin-post.md"]
 
@@ -74,6 +202,11 @@ class EditorialPackageTests(unittest.TestCase):
         self.assertNotIn("18.8357465370108153%", linkedin_text)
         self.assertIn("have at least two track rows", linkedin_text)
         self.assertIn("Only 3,766 have at least 100 track rows.", linkedin_text)
+        normalized_linkedin_text = " ".join(linkedin_text.split())
+        self.assertIn(
+            "For these 3,766 recordings with at least 100 track rows",
+            normalized_linkedin_text,
+        )
 
     def test_root_index_links_current_series_statuses(self):
         root_readme = (REPOSITORY_ROOT / "README.md").read_text(encoding="utf-8")
@@ -118,6 +251,14 @@ class EditorialPackageTests(unittest.TestCase):
         self.assertEqual(
             (publish_ready / "linkedin-post.txt").read_text(encoding="utf-8"),
             (PROJECT_ROOT / "linkedin-post.md").read_text(encoding="utf-8"),
+        )
+        self.assertEqual(
+            (publish_ready / "accessibility.txt").read_bytes(),
+            (PROJECT_ROOT / "accessibility.md").read_bytes(),
+        )
+        self.assertEqual(
+            (publish_ready / "claim-ledger.md").read_bytes(),
+            (PROJECT_ROOT / "claim-ledger.md").read_bytes(),
         )
         notes = (publish_ready / "publication-notes.md").read_text(
             encoding="utf-8"

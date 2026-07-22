@@ -29,9 +29,11 @@ is broadly reused across the catalog.
 
 The analysis first creates one row per recording with `COUNT(track.id)`. It
 then follows `track -> medium -> release` and compares the raw track-row count
-with `COUNT(DISTINCT release.id)`. Independent checks confirm that track rows
-are never fewer than distinct media and distinct media are never fewer than
-distinct releases in the high-reuse result.
+with `COUNT(DISTINCT release.id)`. For the outlier, a per-medium CTE directly
+counts matching `track.id` rows before the recording-level aggregate. Across
+the 3,766 recordings with at least 100 track rows, independent checks confirm
+that track rows are never fewer than distinct media and distinct media are
+never fewer than distinct releases.
 
 ## Limitation
 
@@ -44,6 +46,7 @@ structures, including repeated media within one release.
 
 - [SQL analysis](analysis.sql)
 - [Independent checks](checks.sql)
+- [CSV export script](export.sql)
 - [Catalog summary](data/catalog-summary.csv)
 - [High-reuse recordings](data/high-reuse-recordings.csv)
 - [Outlier structure](data/outlier-structure.csv)
@@ -56,9 +59,26 @@ structures, including repeated media within one release.
 
 ## Reproduce
 
-Run `checks.sql` and `analysis.sql` against the MusicBrainz PostgreSQL
-snapshot. Then test the checked exports and public package from this directory:
+From the repository root, run the independent checks and regenerate all four
+CSV exports. These commands use the local MusicBrainz service and prompt for a
+password unless PostgreSQL authentication is already configured:
 
 ```sh
+/Applications/Postgres.app/Contents/Versions/18/bin/psql \
+  -h 127.0.0.1 -p 5433 -U musicbrainz -d musicbrainz_db \
+  -X -f projects/03-recording-reuse/checks.sql
+
+/Applications/Postgres.app/Contents/Versions/18/bin/psql \
+  -h 127.0.0.1 -p 5433 -U musicbrainz -d musicbrainz_db \
+  -X -f projects/03-recording-reuse/export.sql
+```
+
+Then build both PNG copies and run the complete package tests from the project
+directory:
+
+```sh
+cd projects/03-recording-reuse
+../../.venv/bin/python scripts/build_visual.py
+cp charts/recording-reuse.png publish-ready/recording-reuse.png
 PYTHONPATH=. ../../.venv/bin/python -m unittest discover -s tests -v
 ```

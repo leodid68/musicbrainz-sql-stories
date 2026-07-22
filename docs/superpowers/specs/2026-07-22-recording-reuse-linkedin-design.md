@@ -24,8 +24,9 @@ Public claims may use only checked SQL outputs:
 - 3,766 appear at least one hundred times.
 - Recording 42361496, `I Feel Bad For Your Hard Drive`, has 4,320 track rows
   but belongs to one distinct release.
-- That release contains 180 media; every relevant medium contains 24 track
-  rows, so 180 multiplied by 24 equals 4,320.
+- That release contains 180 media; a per-medium `COUNT(track.id)` shows that
+  every relevant medium contributes 24 matching track rows, so 180 multiplied
+  by 24 equals 4,320.
 - For the 3,766-recording validation perimeter, the minimum track count is 100
   and both tested hierarchy violations return zero.
 
@@ -69,7 +70,7 @@ Narrative order:
 1. The count of 4,320 initially looked like broad reuse.
 2. Counting distinct releases reduced the apparent breadth to one release.
 3. Inspecting the medium grain explained the count: 180 media with 24 matching
-   tracks each.
+   track rows each.
 4. The query was valid, but the first interpretation of its unit was not.
 5. Briefly explain the technique: a recording-level CTE, `COUNT(track.id)`,
    `COUNT(DISTINCT release.id)`, and hierarchy checks. Keep this to one short
@@ -114,6 +115,10 @@ duplicating numbers manually across scripts. Tests must confirm:
 - the arithmetic 180 x 24 = 4,320;
 - agreement between SQL outputs, CSVs, the claim ledger, the visual, and the
   post draft;
+- unique recording IDs and complete `(track_appearances DESC, recording_id ASC)`
+  ordering in the high-reuse export;
+- byte parity between source and publish-ready copies of the post,
+  accessibility text, claim ledger, and visual;
 - the limitation language;
 - the absence of placeholders in the publish-ready package, except for an
   explicitly documented repository URL before push.

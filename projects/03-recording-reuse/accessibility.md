@@ -9,8 +9,8 @@ Near the top, it contrasts 4,320 track rows with one release for the recording
 A large outlined container represents that one release. Inside it are 180
 small turquoise medium symbols arranged in a grid. Each medium symbol contains
 an orange mark for the matching recording, and the legend says that each
-medium has 24 matching track rows. Below the container, the equation reads:
-"180 media x 24 tracks = 4,320."
+medium has 24 matching track rows, counted directly from `track.id`. Below the
+container, the equation reads: "180 media x 24 tracks = 4,320."
 
 The relationship line reads `release -> medium -> track`. The SQL method line
 compares `COUNT(track.id)` with `COUNT(DISTINCT release.id)`.

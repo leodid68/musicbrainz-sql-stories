@@ -59,7 +59,7 @@
 
 **Interfaces:**
 - Consumes: MusicBrainz tables `recording`, `track`, `medium`, and `release`.
-- Produces: CSV columns consumed by `scripts/data_contract.py`: `recordings_with_tracks,total_track_appearances,used_once,used_at_least_twice,used_at_least_10,used_at_least_100,reuse_share_pct`; `recording_id,recording_name,release_id,release_name,distinct_releases,distinct_mediums,track_appearances,min_tracks_on_a_medium,max_tracks_on_a_medium`; `track_appearances,recording_id,distinct_mediums,distinct_releases`; and `recording_count,min_track_appearances,track_medium_violations,medium_release_violations`.
+- Produces: CSV columns consumed by `scripts/data_contract.py`: `recordings_with_tracks,total_track_appearances,used_once,used_at_least_twice,used_at_least_10,used_at_least_100,reuse_share_pct`; `recording_id,recording_name,release_id,release_name,distinct_releases,distinct_mediums,track_appearances,min_matching_track_rows_per_medium,max_matching_track_rows_per_medium`; `track_appearances,recording_id,distinct_mediums,distinct_releases`; and `recording_count,min_track_appearances,track_medium_violations,medium_release_violations`.
 
 - [ ] **Step 1: Write the independent checks first**
 
@@ -80,8 +80,8 @@ DECLARE
     outlier_release_count bigint;
     outlier_medium_count bigint;
     outlier_track_count bigint;
-    outlier_min_medium_tracks integer;
-    outlier_max_medium_tracks integer;
+    outlier_min_matching_track_rows bigint;
+    outlier_max_matching_track_rows bigint;
     track_medium_violations bigint;
     medium_release_violations bigint;
 BEGIN
@@ -118,18 +118,26 @@ BEGIN
         RAISE EXCEPTION 'reuse share mismatch: %', reuse_share;
     END IF;
 
-    SELECT COUNT(DISTINCT release.id), COUNT(DISTINCT medium.id), COUNT(track.id),
-           MIN(medium.track_count), MAX(medium.track_count)
+    WITH outlier_medium_usage AS (
+        SELECT release.id AS release_id, medium.id AS medium_id,
+               COUNT(track.id) AS matching_track_rows
+        FROM track
+        JOIN medium ON medium.id = track.medium
+        JOIN release ON release.id = medium.release
+        WHERE track.recording = 42361496
+        GROUP BY release.id, medium.id
+    )
+    SELECT COUNT(DISTINCT release_id), COUNT(DISTINCT medium_id),
+           SUM(matching_track_rows), MIN(matching_track_rows),
+           MAX(matching_track_rows)
     INTO outlier_release_count, outlier_medium_count, outlier_track_count,
-         outlier_min_medium_tracks, outlier_max_medium_tracks
-    FROM track
-    JOIN medium ON medium.id = track.medium
-    JOIN release ON release.id = medium.release
-    WHERE track.recording = 42361496;
+         outlier_min_matching_track_rows, outlier_max_matching_track_rows
+    FROM outlier_medium_usage;
 
     IF outlier_release_count <> 1 OR outlier_medium_count <> 180
-       OR outlier_track_count <> 4320 OR outlier_min_medium_tracks <> 24
-       OR outlier_max_medium_tracks <> 24 THEN
+       OR outlier_track_count <> 4320
+       OR outlier_min_matching_track_rows <> 24
+       OR outlier_max_matching_track_rows <> 24 THEN
         RAISE EXCEPTION 'outlier structure mismatch';
     END IF;
 
@@ -199,19 +207,27 @@ SELECT COUNT(*) AS recordings_with_tracks,
 FROM recording_usage;
 
 -- Query 2: structure of the largest raw track-count outlier.
-SELECT recording.id AS recording_id, recording.name AS recording_name,
-       release.id AS release_id, release.name AS release_name,
-       COUNT(DISTINCT release.id) AS distinct_releases,
-       COUNT(DISTINCT medium.id) AS distinct_mediums,
-       COUNT(track.id) AS track_appearances,
-       MIN(medium.track_count) AS min_tracks_on_a_medium,
-       MAX(medium.track_count) AS max_tracks_on_a_medium
-FROM recording
-JOIN track ON track.recording = recording.id
-JOIN medium ON medium.id = track.medium
-JOIN release ON release.id = medium.release
-WHERE recording.id = 42361496
-GROUP BY recording.id, recording.name, release.id, release.name;
+WITH outlier_medium_usage AS (
+    SELECT recording.id AS recording_id, recording.name AS recording_name,
+           release.id AS release_id, release.name AS release_name,
+           medium.id AS medium_id,
+           COUNT(track.id) AS matching_track_rows
+    FROM recording
+    JOIN track ON track.recording = recording.id
+    JOIN medium ON medium.id = track.medium
+    JOIN release ON release.id = medium.release
+    WHERE recording.id = 42361496
+    GROUP BY recording.id, recording.name, release.id, release.name, medium.id
+)
+SELECT recording_id, recording_name,
+       MIN(release_id) AS release_id, MIN(release_name) AS release_name,
+       COUNT(DISTINCT release_id) AS distinct_releases,
+       COUNT(DISTINCT medium_id) AS distinct_mediums,
+       SUM(matching_track_rows) AS track_appearances,
+       MIN(matching_track_rows) AS min_matching_track_rows_per_medium,
+       MAX(matching_track_rows) AS max_matching_track_rows_per_medium
+FROM outlier_medium_usage
+GROUP BY recording_id, recording_name;
 
 -- Query 3: all recordings with at least 100 track appearances.
 WITH recording_usage AS (
@@ -316,8 +332,8 @@ class DataContractTest(unittest.TestCase):
         self.assertEqual(outlier["track_appearances"], 4320)
         self.assertEqual(outlier["distinct_mediums"], 180)
         self.assertEqual(outlier["distinct_releases"], 1)
-        self.assertEqual(outlier["min_tracks_on_a_medium"], 24)
-        self.assertEqual(outlier["max_tracks_on_a_medium"], 24)
+        self.assertEqual(outlier["min_matching_track_rows_per_medium"], 24)
+        self.assertEqual(outlier["max_matching_track_rows_per_medium"], 24)
         self.assertEqual(180 * 24, 4320)
 
     def test_validation_summary(self):
@@ -346,13 +362,13 @@ Expected: failure because `scripts.data_contract` does not exist.
 
 - [ ] **Step 3: Implement the CSV loaders and validation**
 
-Use `csv.DictReader`, `Decimal`, and exact paths relative to the project root. Parse integer fields as `int`, preserve names as strings, and raise `ValueError` when the outlier arithmetic or hierarchy checks fail. The public outlier CSV must include a `distinct_releases` column with value `1` even if the SQL export is grouped by one release.
+Use `csv.DictReader`, `Decimal`, and exact paths relative to the project root. Parse integer fields as `int`, preserve names as strings, and raise `ValueError` when the outlier arithmetic or hierarchy checks fail. The public outlier CSV must stay at recording grain while preserving the single release ID and name, and its `distinct_releases` column must equal `1`. Validate unique recording IDs and the complete `(track_appearances DESC, recording_id ASC)` order in the high-reuse export.
 
 - [ ] **Step 4: Run the evidence tests**
 
 Run the command from Step 2.
 
-Expected: three tests pass.
+Expected: six tests pass, including duplicate-ID and complete-order rejection.
 
 - [ ] **Step 5: Commit the data contract**
 
@@ -425,7 +441,7 @@ In `build_visual.py`:
 - draw the headline `I thought this recording appeared everywhere.`;
 - draw `4,320 TRACK ROWS` and `1 RELEASE` as the main contrast;
 - draw a labeled release container containing the 15-by-12 grid;
-- draw one shared `24 matching tracks per medium` annotation;
+- draw one shared `24 matching track rows per medium` annotation;
 - draw `180 media x 24 tracks = 4,320`;
 - draw `COUNT(track.id) vs COUNT(DISTINCT release.id)`;
 - draw the recording name, hierarchy legend, snapshot, and catalog-data limit;
@@ -441,7 +457,10 @@ PYTHONPATH=. ../../.venv/bin/python -m unittest tests.test_data_contract tests.t
 ../../.venv/bin/python scripts/build_visual.py
 ```
 
-Expected: five passing tests and a 1200-by-1500 PNG. Inspect the image at original size and a 360-pixel-wide preview. Confirm readable type, exactly 180 visible symbols, and no resemblance to the prior beige bar charts.
+Expected: nine passing data-contract and visual tests and a 1200-by-1500 PNG.
+Inspect the image at original size and a 360-pixel-wide preview. Confirm
+readable type, exactly 180 visible symbols, and no resemblance to the prior
+beige bar charts.
 
 - [ ] **Step 5: Commit the visual**
 
@@ -521,20 +540,20 @@ The query returned 4,320 track rows for one recording.
 That looked enormous, so I checked the grain before drawing a conclusion.
 
 The same recording appeared across only one release.
-That release contains 180 media, and each one contains 24 track rows pointing
-to the same recording: 180 x 24 = 4,320.
+That release contains 180 media, and each one contains 24 matching track rows:
+180 x 24 = 4,320.
 
 My SQL was counting correctly. My first interpretation of the count was not.
-
-I built a recording-level CTE with COUNT(track.id), then followed
-track -> medium -> release and compared the result with
-COUNT(DISTINCT release.id). I also checked that track rows were never fewer
-than distinct media, and that distinct media were never fewer than distinct
-releases.
 
 Across this MusicBrainz snapshot, 39,332,638 recordings have track rows.
 7,408,596 of them appear at least twice, or 18.8357465370108153%.
 Only 3,766 appear at least 100 times.
+
+I built a recording-level CTE with COUNT(track.id), then followed
+track -> medium -> release and compared the result with
+COUNT(DISTINCT release.id). For these 3,766 recordings with at least 100 track
+rows, I also checked that track rows were never fewer than distinct media, and
+that distinct media were never fewer than distinct releases.
 
 The lesson for me was simple: before interpreting a large count, I need to
 state what one row represents and what the aggregate actually measures.
@@ -590,7 +609,7 @@ Do not publish or push without explicit confirmation.
 
 - [ ] **Step 2: Add bundle checks**
 
-Extend `test_package.py` to assert the six expected publish-ready files exist, the PNG matches the source bytes, the post text matches `linkedin-post.md`, and the notes contain `Status: draft`.
+Extend `test_package.py` to assert the six expected publish-ready files exist; the PNG, post, accessibility text, and claim ledger match their source bytes; and the notes contain `Status: draft`.
 
 - [ ] **Step 3: Run the complete local verification**
 

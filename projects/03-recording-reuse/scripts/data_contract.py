@@ -66,10 +66,14 @@ def validate_evidence() -> None:
     ]:
         raise ValueError("catalog reuse counts do not add up")
 
-    if outlier["min_tracks_on_a_medium"] != outlier["max_tracks_on_a_medium"]:
-        raise ValueError("outlier has inconsistent tracks per medium")
     if (
-        outlier["distinct_mediums"] * outlier["min_tracks_on_a_medium"]
+        outlier["min_matching_track_rows_per_medium"]
+        != outlier["max_matching_track_rows_per_medium"]
+    ):
+        raise ValueError("outlier has inconsistent matching track rows per medium")
+    if (
+        outlier["distinct_mediums"]
+        * outlier["min_matching_track_rows_per_medium"]
         != outlier["track_appearances"]
     ):
         raise ValueError("outlier track appearances do not match medium arithmetic")
@@ -88,6 +92,23 @@ def validate_evidence() -> None:
         raise ValueError("high-reuse export must contain 3766 rows")
     if len(high_reuse_recordings) != validation["recording_count"]:
         raise ValueError("high-reuse export row count does not match validation")
+    recording_ids = [
+        recording["recording_id"] for recording in high_reuse_recordings
+    ]
+    if len(recording_ids) != len(set(recording_ids)):
+        raise ValueError("high-reuse export must contain unique recording IDs")
+    expected_order = sorted(
+        high_reuse_recordings,
+        key=lambda recording: (
+            -recording["track_appearances"],
+            recording["recording_id"],
+        ),
+    )
+    if high_reuse_recordings != expected_order:
+        raise ValueError(
+            "high-reuse export must be ordered by track appearances descending "
+            "and recording ID ascending"
+        )
     minimum_track_appearances = min(
         recording["track_appearances"] for recording in high_reuse_recordings
     )

@@ -15,10 +15,11 @@ is a concentration example, not proof of broad reuse across the catalog.
 | The largest raw result has 4,320 track rows | `track_appearances` | `analysis.sql`, `checks.sql`, `data/high-reuse-recordings.csv`, and `data/outlier-structure.csv` | A concentration example, not evidence of broad reuse |
 | Those 4,320 rows belong to one release | `distinct_releases` equals 1 | `analysis.sql`, `checks.sql`, `data/high-reuse-recordings.csv`, and `data/outlier-structure.csv` | One catalog release may contain many media |
 | The release contains 180 distinct media | `distinct_mediums` | `analysis.sql`, `checks.sql`, `data/high-reuse-recordings.csv`, and `data/outlier-structure.csv` | Media count is not release count |
-| Each of the 180 media has 24 matching track rows | 4,320 track rows divided by 180 media, with both medium track-count bounds equal to 24 | `analysis.sql`, `checks.sql`, and `data/outlier-structure.csv` | Describes this unusual release structure |
+| Each of the 180 media has 24 matching track rows | A per-medium `COUNT(track.id)` produces `matching_track_rows`; its minimum and maximum are both 24 | `analysis.sql`, `checks.sql`, and `data/outlier-structure.csv` | Describes this unusual release structure |
 | 180 media x 24 matching track rows equals 4,320 | Derived from the checked outlier fields | `checks.sql` and `data/outlier-structure.csv` | Explains concentration within one release only |
 
 The SQL also checks the ordering expected from the catalog hierarchy:
 `COUNT(track.id)` is at least the distinct-medium count, which is at least
-`COUNT(DISTINCT release.id)`, for every recording in the 100-or-more perimeter.
-The result is recorded in `checks.sql` and `data/validation-summary.csv`.
+`COUNT(DISTINCT release.id)`, for all 3,766 recordings in the 100-or-more
+track-row perimeter. The result is recorded in `checks.sql` and
+`data/validation-summary.csv`.

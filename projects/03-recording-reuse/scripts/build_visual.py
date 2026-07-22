@@ -99,7 +99,7 @@ def build_visual(output_path: Path = PNG_PATH) -> Path:
     track_rows = int(outlier["track_appearances"])
     releases = int(outlier["distinct_releases"])
     media = int(outlier["distinct_mediums"])
-    tracks_per_medium = int(outlier["min_tracks_on_a_medium"])
+    tracks_per_medium = int(outlier["min_matching_track_rows_per_medium"])
     positions = medium_positions()
     if len(positions) != media:
         raise ValueError("visual grid does not match checked medium count")
@@ -160,7 +160,7 @@ def build_visual(output_path: Path = PNG_PATH) -> Path:
     draw.line((118, annotation_y, 164, annotation_y), fill=CYAN, width=3)
     draw.text(
         (182, annotation_y - 16),
-        f"{tracks_per_medium} matching tracks per medium",
+        f"{tracks_per_medium} matching track rows per medium",
         font=_font(25, bold=True),
         fill=OFF_WHITE,
     )
