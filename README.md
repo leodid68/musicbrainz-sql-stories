@@ -13,6 +13,20 @@ entities?
 
 Status: local draft ready for review.
 
+### [02. A valid SQL join can still create the wrong dataset](projects/02-name-join-explosion/)
+
+What happens when two copies of the artist table are joined on an exact name
+instead of a stable catalog identifier?
+
+Status: Published.
+
+### [03. A large count can hide a narrow concentration](projects/03-recording-reuse/)
+
+Does a recording with 4,320 track rows really appear across thousands of
+releases?
+
+Status: Draft for review.
+
 ## Data boundary
 
 The local database uses the MusicBrainz full export dated 2026-07-15. This
