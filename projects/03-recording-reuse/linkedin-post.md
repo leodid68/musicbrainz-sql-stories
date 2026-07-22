@@ -21,7 +21,7 @@ releases.
 
 Across this MusicBrainz snapshot, 39,332,638 recordings have track rows.
 7,408,596 of them have at least two track rows, or 18.84%.
-Only 3,766 appear at least 100 times.
+Only 3,766 have at least 100 track rows.
 
 The lesson for me was simple: before interpreting a large count, I need to
 state what one row represents and what the aggregate actually measures.

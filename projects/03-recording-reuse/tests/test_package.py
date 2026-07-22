@@ -65,6 +65,7 @@ class EditorialPackageTests(unittest.TestCase):
         self.assertIn("18.84%", linkedin_text)
         self.assertNotIn("18.8357465370108153%", linkedin_text)
         self.assertIn("have at least two track rows", linkedin_text)
+        self.assertIn("Only 3,766 have at least 100 track rows.", linkedin_text)
 
     def test_root_index_links_current_series_statuses(self):
         root_readme = (REPOSITORY_ROOT / "README.md").read_text(encoding="utf-8")
