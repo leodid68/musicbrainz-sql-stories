@@ -1,13 +1,8 @@
 \set ON_ERROR_STOP on
 
-\if :{?export_csv}
-\pset format csv
-\pset footer off
-\pset tuples_only off
-\o projects/03-recording-reuse/data/catalog-summary.csv
-\endif
-
 -- Query 1: catalog-wide recording usage distribution.
+DROP TABLE IF EXISTS recording_reuse_catalog_summary;
+CREATE TEMP TABLE recording_reuse_catalog_summary AS
 WITH recording_usage AS (
     SELECT track.recording AS recording_id, COUNT(track.id) AS track_appearances
     FROM track
@@ -22,11 +17,11 @@ SELECT COUNT(*) AS recordings_with_tracks,
        100.0 * COUNT(*) FILTER (WHERE track_appearances >= 2) / COUNT(*) AS reuse_share_pct
 FROM recording_usage;
 
-\if :{?export_csv}
-\o projects/03-recording-reuse/data/outlier-structure.csv
-\endif
+SELECT * FROM recording_reuse_catalog_summary;
 
 -- Query 2: structure of the largest raw track-count outlier.
+DROP TABLE IF EXISTS recording_reuse_outlier_structure;
+CREATE TEMP TABLE recording_reuse_outlier_structure AS
 SELECT recording.id AS recording_id, recording.name AS recording_name,
        release.id AS release_id, release.name AS release_name,
        COUNT(DISTINCT release.id) AS distinct_releases,
@@ -41,11 +36,11 @@ JOIN release ON release.id = medium.release
 WHERE recording.id = 42361496
 GROUP BY recording.id, recording.name, release.id, release.name;
 
-\if :{?export_csv}
-\o projects/03-recording-reuse/data/high-reuse-recordings.csv
-\endif
+SELECT * FROM recording_reuse_outlier_structure;
 
 -- Query 3: all recordings with at least 100 track appearances.
+DROP TABLE IF EXISTS recording_reuse_high_reuse_recordings;
+CREATE TEMP TABLE recording_reuse_high_reuse_recordings AS
 WITH recording_usage AS (
     SELECT track.recording AS recording_id, COUNT(track.id) AS track_appearances
     FROM track
@@ -62,11 +57,13 @@ WHERE recording_usage.track_appearances >= 100
 GROUP BY recording_usage.track_appearances, recording_usage.recording_id
 ORDER BY recording_usage.track_appearances DESC, recording_usage.recording_id;
 
-\if :{?export_csv}
-\o projects/03-recording-reuse/data/validation-summary.csv
-\endif
+SELECT *
+FROM recording_reuse_high_reuse_recordings
+ORDER BY track_appearances DESC, recording_id;
 
 -- Query 4: validation summary for the high-reuse perimeter.
+DROP TABLE IF EXISTS recording_reuse_validation_summary;
+CREATE TEMP TABLE recording_reuse_validation_summary AS
 WITH recording_usage AS (
     SELECT track.recording AS recording_id, COUNT(track.id) AS track_appearances
     FROM track
@@ -88,6 +85,4 @@ SELECT COUNT(*) AS recording_count,
        COUNT(*) FILTER (WHERE distinct_releases > distinct_mediums) AS medium_release_violations
 FROM recording_release_usage;
 
-\if :{?export_csv}
-\o
-\endif
+SELECT * FROM recording_reuse_validation_summary;
