@@ -43,11 +43,23 @@ def load_validation() -> dict[str, int]:
     }
 
 
+def _load_high_reuse_recordings() -> list[dict[str, int]]:
+    """Load all high-reuse rows to validate the export's row-level evidence."""
+    with (DATA_DIR / "high-reuse-recordings.csv").open(
+        encoding="utf-8", newline=""
+    ) as csv_file:
+        return [
+            {key: int(value) for key, value in row.items()}
+            for row in csv.DictReader(csv_file)
+        ]
+
+
 def validate_evidence() -> None:
     """Reject inconsistent catalog, outlier, or hierarchy evidence."""
     catalog = load_catalog_summary()
     outlier = load_outlier()
     validation = load_validation()
+    high_reuse_recordings = _load_high_reuse_recordings()
 
     if catalog["used_once"] + catalog["used_at_least_twice"] != catalog[
         "recordings_with_tracks"
@@ -71,3 +83,33 @@ def validate_evidence() -> None:
         "medium_release_violations"
     ]:
         raise ValueError("validation summary reports hierarchy violations")
+
+    if len(high_reuse_recordings) != 3766:
+        raise ValueError("high-reuse export must contain 3766 rows")
+    if len(high_reuse_recordings) != validation["recording_count"]:
+        raise ValueError("high-reuse export row count does not match validation")
+    minimum_track_appearances = min(
+        recording["track_appearances"] for recording in high_reuse_recordings
+    )
+    if minimum_track_appearances != 100:
+        raise ValueError("high-reuse export must start at 100 track appearances")
+    if minimum_track_appearances != validation["min_track_appearances"]:
+        raise ValueError("high-reuse export minimum does not match validation")
+    if any(
+        not (
+            recording["distinct_releases"]
+            <= recording["distinct_mediums"]
+            <= recording["track_appearances"]
+        )
+        for recording in high_reuse_recordings
+    ):
+        raise ValueError("high-reuse export violates release-medium-track hierarchy")
+
+    leading_recording = high_reuse_recordings[0]
+    if (
+        leading_recording["recording_id"] != 42361496
+        or leading_recording["track_appearances"] != 4320
+        or leading_recording["distinct_mediums"] != 180
+        or leading_recording["distinct_releases"] != 1
+    ):
+        raise ValueError("high-reuse export's leading recording is not deterministic")

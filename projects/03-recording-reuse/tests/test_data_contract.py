@@ -2,6 +2,7 @@ import unittest
 from decimal import Decimal
 
 from scripts.data_contract import (
+    _load_high_reuse_recordings,
     load_catalog_summary,
     load_outlier,
     load_validation,
@@ -29,6 +30,26 @@ class DataContractTest(unittest.TestCase):
         self.assertEqual(outlier["min_tracks_on_a_medium"], 24)
         self.assertEqual(outlier["max_tracks_on_a_medium"], 24)
         self.assertEqual(180 * 24, 4320)
+
+    def test_high_reuse_export_matches_checked_hierarchy(self):
+        recordings = _load_high_reuse_recordings()
+
+        self.assertEqual(len(recordings), 3766)
+        self.assertEqual(recordings[0]["recording_id"], 42361496)
+        self.assertEqual(recordings[0]["track_appearances"], 4320)
+        self.assertEqual(recordings[0]["distinct_mediums"], 180)
+        self.assertEqual(recordings[0]["distinct_releases"], 1)
+        self.assertEqual(
+            min(recording["track_appearances"] for recording in recordings), 100
+        )
+        self.assertTrue(
+            all(
+                recording["distinct_releases"]
+                <= recording["distinct_mediums"]
+                <= recording["track_appearances"]
+                for recording in recordings
+            )
+        )
 
     def test_validation_summary(self):
         validation = load_validation()
