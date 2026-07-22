@@ -48,7 +48,9 @@ The page contains:
 4. A clear equation: `180 media x 24 tracks = 4,320`.
 5. The recording name and a compact hierarchy legend:
    `release -> medium -> track`.
-6. A restrained footer naming the MusicBrainz snapshot and catalog-data
+6. One compact method line:
+   `COUNT(track.id) vs COUNT(DISTINCT release.id)`.
+7. A restrained footer naming the MusicBrainz snapshot and catalog-data
    limitation.
 
 The 180 symbols communicate structure rather than decorative density. They do
@@ -69,9 +71,12 @@ Narrative order:
 3. Inspecting the medium grain explained the count: 180 media with 24 matching
    tracks each.
 4. The query was valid, but the first interpretation of its unit was not.
-5. The transferable lesson is to define one output row and the unit of every
+5. Briefly explain the technique: a recording-level CTE, `COUNT(track.id)`,
+   `COUNT(DISTINCT release.id)`, and hierarchy checks. Keep this to one short
+   paragraph and do not reproduce the full query in the post.
+6. The transferable lesson is to define one output row and the unit of every
    aggregate before interpreting a large number.
-6. State the catalog-data limitation and link to the public project with a
+7. State the catalog-data limitation and link to the public project with a
    placeholder until the GitHub path is confirmed.
 
 Use at most one functional emoji. Do not use engagement bait, an emoji list,
@@ -115,4 +120,3 @@ duplicating numbers manually across scripts. Tests must confirm:
 
 Render the image and inspect it visually at full size and at a reduced feed-like
 size. Verify the full project locally before requesting approval to push.
-
