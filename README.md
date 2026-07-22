@@ -20,6 +20,8 @@ instead of a stable catalog identifier?
 
 Status: Published.
 
+Published: 22 July 2026 ([LinkedIn post](https://www.linkedin.com/posts/leodidierfr_sql-stories-p2-ugcPost-7484575799333875712-oHDE)).
+
 ### [03. A large count can hide a narrow concentration](projects/03-recording-reuse/)
 
 Does a recording with 4,320 track rows really appear across thousands of

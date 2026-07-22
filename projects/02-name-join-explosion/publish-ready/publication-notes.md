@@ -2,11 +2,13 @@
 
 - Post ID: `LI-2026-002`
 - Series: `MusicBrainz SQL Stories #2`
-- Status: ready and planned
-- Planned publication: Wednesday, 22 July 2026 at 08:00 (Europe/Paris)
+- Status: published
+- Original planned publication: Wednesday, 22 July 2026 at 08:00 (Europe/Paris)
+- Published: 22 July 2026; exact time not confirmed
+- LinkedIn publication: https://www.linkedin.com/posts/leodidierfr_sql-stories-p2-ugcPost-7484575799333875712-oHDE
 - LinkedIn document title: `MusicBrainz SQL Stories #2 - A valid JOIN can still create the wrong dataset`
 - Public project: https://github.com/leodid68/musicbrainz-sql-stories/tree/main/projects/02-name-join-explosion
-- Previous episode: repository available; LinkedIn publication URL not confirmed
+- Previous episode: https://www.linkedin.com/posts/leodidierfr_carroussel-musicbrainz-ugcPost-7484308998993719297-9fDl
 - Planned next episode: why is a track not always the same as a recording?
 
 ## Last checks
@@ -18,4 +20,4 @@
 - Important claims remain readable in the post without the carousel
 - SQL assertions and Python tests pass
 - Every rendered PDF page was visually inspected
-- No LinkedIn publication URL exists yet
+- LinkedIn publication URL and date are recorded above

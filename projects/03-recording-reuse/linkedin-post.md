@@ -20,7 +20,7 @@ than distinct media, and that distinct media were never fewer than distinct
 releases.
 
 Across this MusicBrainz snapshot, 39,332,638 recordings have track rows.
-7,408,596 of them appear at least twice, or 18.8357465370108153%.
+7,408,596 of them have at least two track rows, or 18.84%.
 Only 3,766 appear at least 100 times.
 
 The lesson for me was simple: before interpreting a large count, I need to
