@@ -15,6 +15,14 @@ EPISODE_TWO_URL = (
     "https://www.linkedin.com/posts/"
     "leodidierfr_sql-stories-p2-ugcPost-7484575799333875712-oHDE"
 )
+PUBLISH_READY_FILES = (
+    "README.md",
+    "accessibility.txt",
+    "claim-ledger.md",
+    "linkedin-post.txt",
+    "publication-notes.md",
+    "recording-reuse.png",
+)
 
 
 class EditorialPackageTests(unittest.TestCase):
@@ -93,6 +101,28 @@ class EditorialPackageTests(unittest.TestCase):
         self.assertIn("Published: 22 July 2026", notes)
         self.assertIn(EPISODE_TWO_URL, notes)
         self.assertNotIn("No LinkedIn publication URL exists yet", notes)
+
+    def test_publish_ready_bundle_is_a_draft_copy_of_reviewed_artifacts(self):
+        publish_ready = PROJECT_ROOT / "publish-ready"
+
+        for filename in PUBLISH_READY_FILES:
+            self.assertTrue(
+                (publish_ready / filename).is_file(),
+                f"missing publish-ready file: {filename}",
+            )
+
+        self.assertEqual(
+            (publish_ready / "recording-reuse.png").read_bytes(),
+            (PROJECT_ROOT / "charts/recording-reuse.png").read_bytes(),
+        )
+        self.assertEqual(
+            (publish_ready / "linkedin-post.txt").read_text(encoding="utf-8"),
+            (PROJECT_ROOT / "linkedin-post.md").read_text(encoding="utf-8"),
+        )
+        notes = (publish_ready / "publication-notes.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("Status: draft", notes)
 
 
 if __name__ == "__main__":
