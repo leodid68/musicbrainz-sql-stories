@@ -24,6 +24,12 @@ CYAN = "#4DD6C8"
 CORAL = "#FF7657"
 MUTED_BLUE = "#7795A6"
 
+SUPPORT_TEXT_SIZES = {
+    "sql_method": 32,
+    "snapshot": 28,
+    "catalog_limit": 28,
+}
+
 
 def medium_positions(
     columns: int = COLUMNS,
@@ -31,6 +37,11 @@ def medium_positions(
 ) -> list[tuple[int, int]]:
     """Return logical column/row positions for every medium in the grid."""
     return [(column, row) for row in range(rows) for column in range(columns)]
+
+
+def supporting_text_sizes() -> dict[str, int]:
+    """Return sizes for required lines that must survive a 30% feed preview."""
+    return dict(SUPPORT_TEXT_SIZES)
 
 
 def _font(size: int, *, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
@@ -172,33 +183,32 @@ def build_visual(output_path: Path = PNG_PATH) -> Path:
     )
 
     draw.rounded_rectangle(
-        (72, 1271, 1128, 1344),
+        (72, 1264, 1128, 1360),
         radius=18,
         fill="#0D2230",
         outline="#244657",
         width=2,
     )
-    draw.text((101, 1292), "SQL TECHNIQUE", font=_font(18, bold=True), fill=MUTED_BLUE)
+    draw.text((101, 1296), "SQL TECHNIQUE", font=_font(20, bold=True), fill=MUTED_BLUE)
     draw.text(
-        (306, 1287),
+        (292, 1287),
         "COUNT(track.id) vs COUNT(DISTINCT release.id)",
-        font=_font(27),
+        font=_font(SUPPORT_TEXT_SIZES["sql_method"]),
         fill=OFF_WHITE,
     )
 
-    draw.line((72, 1387, 1128, 1387), fill="#173547", width=2)
+    draw.line((72, 1391, 1128, 1391), fill="#173547", width=2)
     draw.text(
-        (72, 1412),
+        (72, 1407),
         "MusicBrainz full export / 2026-07-15",
-        font=_font(21, bold=True),
+        font=_font(SUPPORT_TEXT_SIZES["snapshot"], bold=True),
         fill=MUTED_BLUE,
     )
     draw.text(
-        (1128, 1412),
+        (72, 1446),
         "Catalog metadata, not plays, sales, or popularity.",
-        font=_font(21),
+        font=_font(SUPPORT_TEXT_SIZES["catalog_limit"]),
         fill=MUTED_BLUE,
-        anchor="ra",
     )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
