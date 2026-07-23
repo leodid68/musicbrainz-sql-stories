@@ -46,6 +46,29 @@ class VisualTest(unittest.TestCase):
                 self.assertEqual(image.size, (1200, 1500))
                 self.assertIn(image.mode, {"RGB", "RGBA"})
 
+    def test_carousel_exports_five_portrait_pages(self):
+        with tempfile.TemporaryDirectory() as directory:
+            pages = visual.build_carousel_pages(Path(directory))
+            self.assertEqual(len(pages), 5)
+            for page in pages:
+                with Image.open(page) as image:
+                    self.assertEqual(image.size, (1200, 1500))
+                    self.assertEqual(image.mode, "RGB")
+
+    def test_cover_matches_page_one(self):
+        with tempfile.TemporaryDirectory() as directory:
+            directory = Path(directory)
+            pages = visual.build_carousel_pages(directory / "pages")
+            cover = visual.build_visual(directory / "cover.png")
+            self.assertEqual(cover.read_bytes(), pages[0].read_bytes())
+
+    def test_editorial_palette_is_stable(self):
+        self.assertEqual(visual.COBALT, "#2446F5")
+        self.assertEqual(visual.INK, "#0B0D12")
+        self.assertEqual(visual.PAPER, "#F7F7F2")
+        self.assertEqual(visual.ACID, "#D8FF3E")
+        self.assertEqual(visual.PALE_BLUE, "#B9C9FF")
+
     def test_required_supporting_text_is_legible_at_feed_scale(self):
         sizes = visual.supporting_text_sizes()
         self.assertEqual(
