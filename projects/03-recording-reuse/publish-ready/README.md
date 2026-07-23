@@ -3,16 +3,17 @@
 Post: **MusicBrainz SQL Stories #3 - A large count can hide a concentrated
 structure**
 
-Status: draft, awaiting Leo's rewrite and final approval.
+Status: ready for publication; final copy approved on 23 July 2026.
 
 Planned publication: Friday, 24 July 2026.
 
 ## Files for review
 
-- `linkedin-post.txt`: current editable draft for Leo to rewrite
+- `linkedin-post.txt`: approved publication copy
 - `recording-reuse.png`: one static visual for the post
 - `accessibility.txt`: description of the static visual
 - `claim-ledger.md`: checked evidence and limits for each numerical claim
-- `publication-notes.md`: draft status and publication safeguards
+- `publication-notes.md`: publication status and safeguards
 
-Do not publish or push without explicit confirmation.
+The repository package may be pushed to GitHub. Do not publish on LinkedIn
+without explicit confirmation.

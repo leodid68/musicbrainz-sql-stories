@@ -61,7 +61,7 @@ CANONICAL_CLAIMS_BY_FILE = {
         "18.84%",
         "3,766",
         "4,320 track rows",
-        "one release",
+        "single release",
         "180 media",
         "24 matching track rows",
     ),
@@ -190,11 +190,10 @@ class EditorialPackageTests(unittest.TestCase):
             readme,
         )
 
-    def test_linkedin_draft_avoids_unsupported_or_overpolished_copy(self):
+    def test_linkedin_final_copy_uses_checked_claims_and_cte(self):
         linkedin_text = self.read_public_files()["linkedin-post.md"]
 
-        self.assertIn("draft", linkedin_text.lower())
-        self.assertIn("Leo", linkedin_text)
+        self.assertNotIn("editable draft", linkedin_text.lower())
         self.assertNotIn("popularity", linkedin_text.lower())
         self.assertNotIn("—", linkedin_text)
         self.assertLessEqual(linkedin_text.count("🎧"), 1)
@@ -202,11 +201,10 @@ class EditorialPackageTests(unittest.TestCase):
         self.assertNotIn("18.8357465370108153%", linkedin_text)
         self.assertIn("have at least two track rows", linkedin_text)
         self.assertIn("Only 3,766 have at least 100 track rows.", linkedin_text)
-        normalized_linkedin_text = " ".join(linkedin_text.split())
-        self.assertIn(
-            "For these 3,766 recordings with at least 100 track rows",
-            normalized_linkedin_text,
-        )
+        self.assertIn("WITH recording_usage AS (", linkedin_text)
+        self.assertIn("GROUP BY track.recording", linkedin_text)
+        self.assertIn("This CTE returns one row per recording", linkedin_text)
+        self.assertIn("COUNT(DISTINCT release.id)", linkedin_text)
 
     def test_root_index_links_current_series_statuses(self):
         root_readme = (REPOSITORY_ROOT / "README.md").read_text(encoding="utf-8")
@@ -220,7 +218,7 @@ class EditorialPackageTests(unittest.TestCase):
         self.assertNotIn("Draft for review", episode_two)
 
         self.assertIn("projects/03-recording-reuse/", episode_three)
-        self.assertIn("Status: Draft for review.", episode_three)
+        self.assertIn("Status: Ready for publication.", episode_three)
         self.assertNotIn("Status: Published.", episode_three)
 
     def test_episode_two_publication_notes_preserve_published_history(self):
@@ -235,7 +233,7 @@ class EditorialPackageTests(unittest.TestCase):
         self.assertIn(EPISODE_TWO_URL, notes)
         self.assertNotIn("No LinkedIn publication URL exists yet", notes)
 
-    def test_publish_ready_bundle_is_a_draft_copy_of_reviewed_artifacts(self):
+    def test_publish_ready_bundle_contains_approved_copy(self):
         publish_ready = PROJECT_ROOT / "publish-ready"
 
         for filename in PUBLISH_READY_FILES:
@@ -263,7 +261,7 @@ class EditorialPackageTests(unittest.TestCase):
         notes = (publish_ready / "publication-notes.md").read_text(
             encoding="utf-8"
         )
-        self.assertIn("Status: draft", notes)
+        self.assertIn("Status: ready for publication", notes)
 
 
 if __name__ == "__main__":

@@ -63,8 +63,8 @@ for a medium with 24 matching track rows, giving 180 x 24 = 4,320.
 
 ## Publication package
 
-**Post text:** `linkedin-post.md`, explicitly a draft for Leo to rewrite
+**Post text:** `linkedin-post.md`, final copy approved by Leo
 
 **Repository link:** https://github.com/leodid68/musicbrainz-sql-stories/tree/main/projects/03-recording-reuse
 
-**Status:** Draft for review
+**Status:** Ready for publication

@@ -53,7 +53,7 @@ structures, including repeated media within one release.
 - [Validation summary](data/validation-summary.csv)
 - [Static visual](charts/recording-reuse.png)
 - [Data post brief](data-post-brief.md)
-- [LinkedIn draft](linkedin-post.md)
+- [LinkedIn post](linkedin-post.md)
 - [Claim ledger](claim-ledger.md)
 - [Accessibility text](accessibility.md)
 
