@@ -1,6 +1,6 @@
 # Publication notes
 
-Status: ready for publication; final copy approved by Leo on 23 July 2026.
+Status: draft; final text approved by Leo on 23 July 2026, visual review pending.
 Planned publication: Friday, 24 July 2026.
 Format: one static image plus text post.
 Repository package pushed to GitHub on 23 July 2026.

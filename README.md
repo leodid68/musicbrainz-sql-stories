@@ -27,7 +27,7 @@ Published: 22 July 2026 ([LinkedIn post](https://www.linkedin.com/posts/leodidie
 Does a recording with 4,320 track rows really appear across thousands of
 releases?
 
-Status: Ready for publication.
+Status: Draft — final text approved; visual review pending.
 
 ## Data boundary
 

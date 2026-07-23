@@ -218,7 +218,10 @@ class EditorialPackageTests(unittest.TestCase):
         self.assertNotIn("Draft for review", episode_two)
 
         self.assertIn("projects/03-recording-reuse/", episode_three)
-        self.assertIn("Status: Ready for publication.", episode_three)
+        self.assertIn(
+            "Status: Draft — final text approved; visual review pending.",
+            episode_three,
+        )
         self.assertNotIn("Status: Published.", episode_three)
 
     def test_episode_two_publication_notes_preserve_published_history(self):
@@ -233,7 +236,7 @@ class EditorialPackageTests(unittest.TestCase):
         self.assertIn(EPISODE_TWO_URL, notes)
         self.assertNotIn("No LinkedIn publication URL exists yet", notes)
 
-    def test_publish_ready_bundle_contains_approved_copy(self):
+    def test_publish_ready_bundle_contains_approved_text_and_draft_status(self):
         publish_ready = PROJECT_ROOT / "publish-ready"
 
         for filename in PUBLISH_READY_FILES:
@@ -261,7 +264,11 @@ class EditorialPackageTests(unittest.TestCase):
         notes = (publish_ready / "publication-notes.md").read_text(
             encoding="utf-8"
         )
-        self.assertIn("Status: ready for publication", notes)
+        self.assertIn(
+            "Status: draft; final text approved by Leo on 23 July 2026, "
+            "visual review pending.",
+            notes,
+        )
 
 
 if __name__ == "__main__":
