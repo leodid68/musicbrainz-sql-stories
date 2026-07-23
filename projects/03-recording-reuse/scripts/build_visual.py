@@ -342,6 +342,7 @@ def _render_sql(
         font=_font(37, bold=True),
         fill=INK,
     )
+    draw.line((600, 950, 600, 1054), fill=ACID, width=4)
     draw.multiline_text(
         (72, 960),
         "COUNT(track.id) answers:\nHow many track rows?",

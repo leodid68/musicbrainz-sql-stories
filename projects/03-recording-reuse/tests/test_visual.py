@@ -62,6 +62,12 @@ class VisualTest(unittest.TestCase):
             cover = visual.build_visual(directory / "cover.png")
             self.assertEqual(cover.read_bytes(), pages[0].read_bytes())
 
+    def test_sql_explanations_have_a_visible_column_divider(self):
+        with tempfile.TemporaryDirectory() as directory:
+            pages = visual.build_carousel_pages(Path(directory))
+            with Image.open(pages[3]) as image:
+                self.assertEqual(image.getpixel((600, 990)), (216, 255, 62))
+
     def test_editorial_palette_is_stable(self):
         self.assertEqual(visual.COBALT, "#2446F5")
         self.assertEqual(visual.INK, "#0B0D12")

@@ -51,7 +51,9 @@ structures, including repeated media within one release.
 - [High-reuse recordings](data/high-reuse-recordings.csv)
 - [Outlier structure](data/outlier-structure.csv)
 - [Validation summary](data/validation-summary.csv)
-- [Static visual](charts/recording-reuse.png)
+- [Five-page PDF carousel](recording-reuse-carousel.pdf)
+- [Carousel source pages](carousel/)
+- [Standalone cover](charts/recording-reuse.png)
 - [Data post brief](data-post-brief.md)
 - [LinkedIn post](linkedin-post.md)
 - [Claim ledger](claim-ledger.md)
@@ -73,12 +75,11 @@ password unless PostgreSQL authentication is already configured:
   -X -f projects/03-recording-reuse/export.sql
 ```
 
-Then build both PNG copies and run the complete package tests from the project
-directory:
+Then build the five PNG pages, PDF carousel, and synchronized publication
+copies before running the complete package tests:
 
 ```sh
 cd projects/03-recording-reuse
-../../.venv/bin/python scripts/build_visual.py
-cp charts/recording-reuse.png publish-ready/recording-reuse.png
+../../.venv/bin/python scripts/build_carousel.py
 PYTHONPATH=. ../../.venv/bin/python -m unittest discover -s tests -v
 ```

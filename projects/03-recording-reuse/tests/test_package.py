@@ -2,6 +2,8 @@ import re
 import unittest
 from pathlib import Path
 
+from scripts.build_visual import PAGE_FILENAMES
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = PROJECT_ROOT.parents[1]
@@ -23,6 +25,7 @@ PUBLISH_READY_FILES = (
     "linkedin-post.txt",
     "publication-notes.md",
     "recording-reuse.png",
+    "recording-reuse-carousel.pdf",
 )
 CANONICAL_CLAIMS_BY_FILE = {
     "README.md": (
@@ -186,8 +189,35 @@ class EditorialPackageTests(unittest.TestCase):
         )
         self.assertIn("cd projects/03-recording-reuse", readme)
         self.assertIn(
-            "../../.venv/bin/python scripts/build_visual.py",
+            "../../.venv/bin/python scripts/build_carousel.py",
             readme,
+        )
+
+    def test_carousel_package_contains_five_pages_and_matching_publication_copies(
+        self,
+    ):
+        carousel_dir = PROJECT_ROOT / "carousel"
+        page_paths = [carousel_dir / filename for filename in PAGE_FILENAMES]
+
+        for page_path in page_paths:
+            self.assertTrue(
+                page_path.is_file(),
+                f"missing carousel page: {page_path.name}",
+            )
+
+        self.assertEqual(
+            page_paths[0].read_bytes(),
+            (PROJECT_ROOT / "charts/recording-reuse.png").read_bytes(),
+        )
+        self.assertEqual(
+            page_paths[0].read_bytes(),
+            (PROJECT_ROOT / "publish-ready/recording-reuse.png").read_bytes(),
+        )
+        self.assertEqual(
+            (PROJECT_ROOT / "recording-reuse-carousel.pdf").read_bytes(),
+            (
+                PROJECT_ROOT / "publish-ready/recording-reuse-carousel.pdf"
+            ).read_bytes(),
         )
 
     def test_linkedin_final_copy_uses_checked_claims_and_cte(self):
@@ -269,6 +299,7 @@ class EditorialPackageTests(unittest.TestCase):
             "visual review pending.",
             notes,
         )
+        self.assertIn("Format: five-page PDF carousel plus text post.", notes)
 
 
 if __name__ == "__main__":

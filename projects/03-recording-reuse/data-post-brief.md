@@ -51,13 +51,15 @@ interpretation if the counted entity is unclear.
 
 ## Visual
 
-**Format:** One static editorial diagram
+**Format:** Five-page PDF carousel plus text post
 
 **Visual question:** How can one release produce 4,320 track rows for the same
 recording?
 
-**Visual answer:** One release contains 180 medium symbols. Each symbol stands
-for a medium with 24 matching track rows, giving 180 x 24 = 4,320.
+**Visual answer:** The sequence moves from the 4,320-row hook to the one-release
+reveal, then draws all 180 media with 24 matching-track markers inside each
+one. It closes by showing the CTE, the corrected grain, and the catalog-data
+limitation.
 
 **Method line:** `COUNT(track.id)` versus `COUNT(DISTINCT release.id)`
 

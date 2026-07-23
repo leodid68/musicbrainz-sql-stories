@@ -10,8 +10,9 @@ Planned publication: Friday, 24 July 2026.
 ## Files for review
 
 - `linkedin-post.txt`: approved publication copy
-- `recording-reuse.png`: one static visual for the post
-- `accessibility.txt`: description of the static visual
+- `recording-reuse-carousel.pdf`: five-page document to upload as the carousel
+- `recording-reuse.png`: standalone copy of the first page for preview
+- `accessibility.txt`: page-by-page description of the carousel
 - `claim-ledger.md`: checked evidence and limits for each numerical claim
 - `publication-notes.md`: draft status and publication safeguards
 
