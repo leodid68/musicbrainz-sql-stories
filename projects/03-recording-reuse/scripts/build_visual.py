@@ -12,11 +12,19 @@ else:
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PNG_PATH = PROJECT_ROOT / "charts" / "recording-reuse.png"
+CAROUSEL_DIR = PROJECT_ROOT / "carousel"
 
 WIDTH = 1200
 HEIGHT = 1500
 COLUMNS = 15
 ROWS = 12
+PAGE_FILENAMES = (
+    "page-01-hook.png",
+    "page-02-reveal.png",
+    "page-03-structure.png",
+    "page-04-sql.png",
+    "page-05-lesson.png",
+)
 
 DARK_NAVY = "#071521"
 OFF_WHITE = "#F5F1E8"
@@ -37,6 +45,19 @@ def medium_positions(
 ) -> list[tuple[int, int]]:
     """Return logical column/row positions for every medium in the grid."""
     return [(column, row) for row in range(rows) for column in range(columns)]
+
+
+def track_marker_positions(
+    columns: int = 6,
+    rows: int = 4,
+) -> list[tuple[int, int]]:
+    """Return 24 logical marker positions for one medium."""
+    return [(column, row) for row in range(rows) for column in range(columns)]
+
+
+def carousel_page_paths(output_dir: Path) -> list[Path]:
+    """Return the stable five-page carousel output paths."""
+    return [output_dir / filename for filename in PAGE_FILENAMES]
 
 
 def supporting_text_sizes() -> dict[str, int]:

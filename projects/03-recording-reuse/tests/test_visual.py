@@ -5,7 +5,12 @@ from pathlib import Path
 from PIL import Image
 
 from scripts import build_visual as visual
-from scripts.build_visual import build_visual, medium_positions
+from scripts.build_visual import (
+    build_visual,
+    carousel_page_paths,
+    medium_positions,
+    track_marker_positions,
+)
 
 
 class VisualTest(unittest.TestCase):
@@ -13,6 +18,25 @@ class VisualTest(unittest.TestCase):
         positions = medium_positions()
         self.assertEqual(len(positions), 180)
         self.assertEqual(len(set(positions)), 180)
+
+    def test_each_medium_contains_exactly_24_track_markers(self):
+        markers = track_marker_positions()
+        self.assertEqual(len(markers), 24)
+        self.assertEqual(len(set(markers)), 24)
+        self.assertEqual(len(medium_positions()) * len(markers), 4320)
+
+    def test_carousel_has_five_stable_page_names(self):
+        paths = carousel_page_paths(Path("/tmp/carousel"))
+        self.assertEqual(
+            [path.name for path in paths],
+            [
+                "page-01-hook.png",
+                "page-02-reveal.png",
+                "page-03-structure.png",
+                "page-04-sql.png",
+                "page-05-lesson.png",
+            ],
+        )
 
     def test_visual_exports_expected_portrait_png(self):
         with tempfile.TemporaryDirectory() as directory:
