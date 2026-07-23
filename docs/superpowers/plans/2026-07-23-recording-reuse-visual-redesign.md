@@ -1,5 +1,8 @@
 # Recording Reuse Visual Redesign Implementation Plan
 
+> **Status:** Superseded before implementation by the approved five-page PDF
+> carousel. Do not execute this plan.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the episode-three navy dashboard visual with a deterministic cobalt editorial poster that draws all 180 media and all 4,320 matching track markers.

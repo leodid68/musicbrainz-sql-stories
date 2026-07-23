@@ -2,7 +2,10 @@
 
 Date: 2026-07-23  
 Project: MusicBrainz SQL Stories #3  
-Status: approved direction, implementation pending
+Status: superseded by `2026-07-23-recording-reuse-carousel-redesign.md`
+
+The cobalt art direction remains valid, but the single-image format was
+replaced by a five-page PDF carousel after user review.
 
 ## Objective
 
